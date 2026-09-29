@@ -7,18 +7,15 @@ on:
 jobs:
   copilot-review-and-approve:
     runs-on: ubuntu-latest
-    # Skip if the PR author is the auto-approver (PAT owner) to avoid self-approval
     if: github.actor != 'MitchellPaff'
     steps:
       - name: Request Copilot review
-        run: |
-          gh pr edit "${{ github.event.pull_request.number }}"             --add-reviewer "copilot-swe"             --repo "${{ github.repository }}"
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.LABS_PAT }}
-        continue-on-error: true
+        run: gh pr edit "${{ github.event.pull_request.number }}" --add-reviewer "copilot-swe" --repo "${{ github.repository }}"
 
       - name: Auto-approve PR
-        run: |
-          gh pr review "${{ github.event.pull_request.number }}"             --approve             --body "✅ Copilot review requested. Auto-approved so you can merge once you're happy with the feedback."             --repo "${{ github.repository }}"
         env:
           GH_TOKEN: ${{ secrets.LABS_PAT }}
+        run: gh pr review "${{ github.event.pull_request.number }}" --approve --body "✅ Copilot review requested. Auto-approved so you can merge once you are happy with the feedback." --repo "${{ github.repository }}"
